@@ -11,7 +11,7 @@ A simple, yet effective crawler and jsonfiles-making extractor of nutritional va
 ## Usage
 
 ```bash
-python3 -m pip istall virtualenv
+python3 -m pip install virtualenv
 python3 -m virtualenv venv
 source ./venv/bin/activate
 python main.py
