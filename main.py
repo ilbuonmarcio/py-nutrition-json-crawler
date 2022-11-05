@@ -126,11 +126,47 @@ def parse_pages():
         print(f"Extracting [{i}/{len(filenames)}] {data['name_it']}")
          
         i += 1
+        
+        
+def generate_sql_inserts():
+    sql_inserts = []
+        
+    for filename in os.listdir('./exports/'):
+        with open('./exports/' + filename, 'r') as input_file:
+            food = json.loads(input_file.read())
+            
+            columns = []
+            for key, value in food.items():
+                if isinstance(value, list):
+                    for elem in value:                        
+                        # Cleaning name
+                        column_name = elem['name'].replace('(g)', '') \
+                                                .replace('(kcal)', '') \
+                                                .replace('(kJ)', '') \
+                                                .replace('(mg)', '') \
+                                                .replace('(μg)', '') \
+                                                .strip().lower().replace(' ', '_')
+                        column_value = elem['value_100g']
+                        columns.append([column_name, column_value])
+                else:
+                    columns.append([key, value])
+                    
+            keys = ", ".join([str(elem[0]) for elem in columns])
+            values = ", ".join(['"' + str(elem[1]) + '"' for elem in columns])
+            sql = f"INSERT INTO foods ({keys}) VALUES ({values});\n"
+            
+            sql_inserts.append(sql)
+    
+    with open("insert.sql", 'w', encoding="utf-8") as output_file:
+        output_file.write("".join(sql_inserts))
+    
+    return sql_inserts
 
         
 if __name__ == "__main__":
     download_pages()
     parse_pages()
+    generate_sql_inserts()
     
     global_end = time.time()
-    print(f"\nTotal time elapsed: {round(global_end - global_start, 2)}s")
+    print(f"\nTotal time elapsed: {round(global_end - global_start, 3)}s")
