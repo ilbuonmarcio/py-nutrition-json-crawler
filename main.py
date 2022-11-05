@@ -110,10 +110,6 @@ def parse_pages():
             "id": i,
             "name_it": data_name_it,
             "name_en": data_name_en,
-            "category": data_category,
-            "food_code": data_food_code,
-            "edible_percentage": data_edible_percentage,
-            "portion_qty": data_portion_qty,
             "nutrients": n,
             "minerals": m,
             "vitamins": v,
@@ -135,24 +131,24 @@ def generate_sql_inserts():
         with open('./exports/' + filename, 'r') as input_file:
             food = json.loads(input_file.read())
             
-            columns = []
+            columns = {}
             for key, value in food.items():
                 if isinstance(value, list):
                     for elem in value:                        
                         # Cleaning name
                         column_name = elem['name'].replace('(g)', '') \
-                                                .replace('(kcal)', '') \
-                                                .replace('(kJ)', '') \
+                                                .replace('(kcal)', 'kcal') \
+                                                .replace('(kJ)', 'kj') \
                                                 .replace('(mg)', '') \
                                                 .replace('(μg)', '') \
                                                 .strip().lower().replace(' ', '_')
                         column_value = elem['value_100g']
-                        columns.append([column_name, column_value])
+                        columns[column_name] = column_value
                 else:
-                    columns.append([key, value])
-                    
-            keys = ", ".join([str(elem[0]) for elem in columns])
-            values = ", ".join(['"' + str(elem[1]) + '"' for elem in columns])
+                    columns[key] = value
+            
+            keys = ", ".join([str(elem) for elem in columns.keys()])
+            values = ", ".join(['"' + str(columns[key]).replace('"', "") + '"' if str(columns[key]) != 'tr' else '"' + str(0) + '"' for key in columns.keys()])
             sql = f"INSERT INTO foods ({keys}) VALUES ({values});\n"
             
             sql_inserts.append(sql)
