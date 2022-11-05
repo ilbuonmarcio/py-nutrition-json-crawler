@@ -71,5 +71,5 @@ CREATE TABLE foods (
     biotina DOUBLE NOT NULL DEFAULT 0,
     nickel DOUBLE NOT NULL DEFAULT 0,
     cloro DOUBLE NOT NULL DEFAULT 0,
-    aminoacido_limitante VARCHAR(50) NOT NULL DEFAULT 0
+    aminoacido_limitante VARCHAR(50) DEFAULT NULL
 );
